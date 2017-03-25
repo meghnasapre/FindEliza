@@ -14,14 +14,24 @@ using namespace cv::xfeatures2d;
 /*! Constructor for Finder
 	 *  @return: None - Initialize  mQuery, mScene, mDetector
 	 * */
-Finder::Finder(ImageHandler query, ImageHandler scene)
+Finder::Finder(ImageHandler *query, ImageHandler *scene):mQuery(query),mScene(scene)
 {
-	mQuery = &query;
-	mScene = &scene;
+	//mQuery = &query;
+	//mScene = &scene;
+	cout << query->GetImg().rows << endl;
+	cout << mQuery->GetImg().rows << endl;
     mMaxKeyPointDist = 0;
     mMinKeyPointDist = 70;
 	mDetector = SIFT::create();
 }
+
+/*! Accessor for Feature Detector
+ * */
+Ptr<Feature2D> Finder::GetDetector()
+{
+	return mDetector;
+}
+
 
 /*! PerformDescriptorMatch()
  *  @brief        : Retrieve Descriptors extracted from
@@ -32,9 +42,13 @@ Finder::Finder(ImageHandler query, ImageHandler scene)
  * */
 bool Finder::PerformDescriptorMatch()
 {
+	cout << mQuery->GetImg().rows << endl;
+	vector<KeyPoint> kp =  mQuery->GetKeyPoints();
+	cout << "Query KeyPoints size: " << kp.size() << endl;
 	try
 	{
 		mFMatcher.match( mQuery->GetDescriptors(), mScene->GetDescriptors(), mDescriptorMatches);
+		cout << " mDescriptorMatches size: " << mDescriptorMatches.size() << endl;
 		return true;
 	}
 	catch(int e)
@@ -140,6 +154,7 @@ bool Finder::PerformPerspTransform()
  * */
 vector<DMatch> Finder::GetDescriptorMatches()
 {
+	cout << "mDescriptorMatches size: " << mDescriptorMatches.size() << endl;
 	if(mDescriptorMatches.size() < 1)
 	{
 		PerformDescriptorMatch();
@@ -153,9 +168,14 @@ bool Finder::DrawMatches()
 {
 	try
 	{
+		cout << "mGoodMatches size: " << mGoodMatches.size() << endl;
+		cout << "mImageMatches empty: " << mImageMatches.empty() << endl;
+		Mat 			  ImageMatches;
 		drawMatches(mQuery->GetImg(), mQuery->GetKeyPoints(), mScene->GetImg(), mScene->GetKeyPoints(),
-			   mGoodMatches, mImageMatches, Scalar::all(255), Scalar::all(255),
+			   mGoodMatches, ImageMatches, Scalar::all(255), Scalar::all(255),
 			   std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+		ImageMatches.copyTo(mImageMatches);
+		cout << "mImageMatches empty: " << mImageMatches.empty() << endl;
 		return true;
 	}
 	catch(int e)
@@ -174,6 +194,7 @@ Mat Finder::GetHomography()
 		CalculateGoodMatches();
 		FindHomography();
 	}
+	cout << "mHomography empty: " << mHomography.empty() << endl;
 	return mHomography;
 }
 
@@ -181,13 +202,20 @@ Mat Finder::GetHomography()
  * */
 void Finder::RenderOutput()
 {
+	cout << "In Render" << endl;
 	 Mat Query = mQuery->GetImg();
+
+	 DrawMatches();
+	 PerformPerspTransform();
+	 cout << "Is query empty: " << Query.empty() << endl;
+	 cout << "Is mImageMatches empty: " << mImageMatches.empty() << endl;
+	 cout << "mSceneCorners size: " << mSceneCorners.size() << endl;
 	 if(Query.empty() || mImageMatches.empty() || mSceneCorners.size() < 1)
 	 {
 		 cout << "Rendering is broken please check structures" << endl;
-		 return;
+		 exit(0);
 	 }
-	 if(DrawMatches())
+
 	 {
 	  //-- Draw lines between the corners (the mapped object in the scene - image_2 )
 	  line( mImageMatches, mSceneCorners[0] + Point2f( Query.cols, 0), mSceneCorners[1] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
@@ -195,6 +223,7 @@ void Finder::RenderOutput()
 	  line( mImageMatches, mSceneCorners[2] + Point2f( Query.cols, 0), mSceneCorners[3] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
 	  line( mImageMatches, mSceneCorners[3] + Point2f( Query.cols, 0), mSceneCorners[0] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
 	 }
+
 	  //-- Show detected matches
 	  std::string windowName = "Find Eliza";
 	  namedWindow(windowName , WINDOW_NORMAL );

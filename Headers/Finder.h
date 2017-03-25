@@ -27,9 +27,13 @@ public:
 	/*! Constructor for Finder
 	 *  @return: None - Initialize  mQuery, mScene, mDetector
 	 * */
-	Finder(ImageHandler query, ImageHandler scene);
+	Finder(ImageHandler *query, ImageHandler *scene);
 
 public:
+	/*! Accessor for Feature Detector
+	 * */
+	Ptr<Feature2D> GetDetector();
+
 	/*! Accessor for mDescriptorMatches
 	 * */
 	vector<DMatch> GetDescriptorMatches();
@@ -92,15 +96,18 @@ protected:
 	 * */
 	bool DrawMatches();
 
+public:
+
+
 private:
 	Ptr<Feature2D>    mDetector;
 	FlannBasedMatcher mFMatcher;
 	vector<DMatch>    mDescriptorMatches;
 	vector<DMatch>    mGoodMatches;
-	ImageHandler*     mQuery;
-	ImageHandler*     mScene;
 	vector<Point2f>   mSceneCorners;
 	Mat 			  mImageMatches;
+	ImageHandler*     mQuery;
+	ImageHandler*     mScene;
 	Mat 			  mHomography;
 	double 			  mMaxKeyPointDist;
 	double            mMinKeyPointDist;

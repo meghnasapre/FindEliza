@@ -23,16 +23,20 @@ int main( int argc, char** argv )
 		 return -1;
 	 }
 
-	ImageHandler query(argv[1], 0.5);
+	ImageHandler query(argv[1], 0.75);
 	ImageHandler scene(argv[2]);
 
-	Finder finder(query, scene);
+	Finder finder(&query, &scene);
+	query.SetKeyPointsAndDescriptors(finder.GetDetector());
+	vector<KeyPoint> kp = query.GetKeyPoints();
+	cout << "Query KeyPoints size: " << kp.size() << endl;
 
-	Ptr<Feature2D> detector = SIFT::create();
-	query.SetKeyPointsAndDescriptors(detector);
-	scene.SetKeyPointsAndDescriptors(detector);
+	scene.SetKeyPointsAndDescriptors(finder.GetDetector());
+	vector<KeyPoint> sp = scene.GetKeyPoints();
+	cout << "Scene KeyPoints size: " << sp.size() << endl;
 
-	finder.GetDescriptorMatches();
+	vector<DMatch> desc = finder.GetDescriptorMatches();
+	cout << "desc size: " << desc.size() << endl;
 	finder.GetHomography();
 	finder.RenderOutput();
 
