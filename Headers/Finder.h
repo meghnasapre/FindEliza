@@ -86,6 +86,11 @@ protected:
 	 * */
 	bool PerformPerspTransform();
 
+
+	/*! Draw Matches. Populate mImageMatches
+	 * */
+	bool DrawMatches();
+
 private:
 	Ptr<Feature2D>    mDetector;
 	FlannBasedMatcher mFMatcher;

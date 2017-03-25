@@ -153,6 +153,24 @@ vector<DMatch> Finder::GetDescriptorMatches()
 	return mDescriptorMatches;
 }
 
+/*! Draw Matches. Populate mImageMatches
+ * */
+bool Finder::DrawMatches()
+{
+	try
+	{
+		drawMatches(mQuery.GetImg(), mQuery.GetKeyPoints(), mScene.GetImg(), mScene.GetKeyPoints(),
+			   mGoodMatches, mImageMatches, Scalar::all(255), Scalar::all(255),
+			   std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+		return true;
+	}
+	catch(int e)
+	{
+		cout << "An exception occurred. Exception: " << e << '\n';
+		return false;
+	}
+	return false;
+}
 /*! Accessor for mHomography
  * */
 Mat Finder::GetHomography()
@@ -175,12 +193,14 @@ void Finder::RenderOutput()
 		 cout << "Rendering is broken please check structures" << endl;
 		 return;
 	 }
+	 if(DrawMatches())
+	 {
 	  //-- Draw lines between the corners (the mapped object in the scene - image_2 )
 	  line( mImageMatches, mSceneCorners[0] + Point2f( Query.cols, 0), mSceneCorners[1] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
 	  line( mImageMatches, mSceneCorners[1] + Point2f( Query.cols, 0), mSceneCorners[2] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
 	  line( mImageMatches, mSceneCorners[2] + Point2f( Query.cols, 0), mSceneCorners[3] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
 	  line( mImageMatches, mSceneCorners[3] + Point2f( Query.cols, 0), mSceneCorners[0] + Point2f( Query.cols, 0), Scalar(0, 0, 255), 4 );
-
+	 }
 	  //-- Show detected matches
 	  std::string windowName = "Find Eliza";
 	  namedWindow(windowName , WINDOW_NORMAL );
