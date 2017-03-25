@@ -5,7 +5,7 @@
  *      Author: meghnasapre
  */
 
-#include "Finder.h"
+#include "../Headers/Finder.h"
 
 using namespace std;
 using namespace cv;
@@ -16,8 +16,10 @@ using namespace cv::xfeatures2d;
 	 * */
 Finder::Finder(ImageHandler query, ImageHandler scene)
 {
-	mQuery = query;
-	mScene = scene;
+	mQuery = &query;
+	mScene = &scene;
+    mMaxKeyPointDist = 0;
+    mMinKeyPointDist = 70;
 	mDetector = SIFT::create();
 }
 
@@ -30,13 +32,9 @@ Finder::Finder(ImageHandler query, ImageHandler scene)
  * */
 bool Finder::PerformDescriptorMatch()
 {
-	if(mFMatcher == nullptr)
-	{
-		return false;
-	}
 	try
 	{
-		mFMatcher.match( mQuery.GetDescriptors(), mScene.GetDescriptors(), mDescriptorMatches);
+		mFMatcher.match( mQuery->GetDescriptors(), mScene->GetDescriptors(), mDescriptorMatches);
 		return true;
 	}
 	catch(int e)
@@ -57,12 +55,12 @@ bool Finder::PerformDescriptorMatch()
 	 * */
 bool Finder::CalculateKeyPointDist()
 {
-	if(mDescriptorMatches == nullptr)
+	if(mDescriptorMatches.size() < 1)
 	{
 		return false;
 	}
 
-	for( int i = 0; i < mQuery.GetDescriptors().rows; i++ )
+	for( int i = 0; i < (mQuery->GetDescriptors()).rows; i++ )
 	 {
 		  double dist = mDescriptorMatches[i].distance;
 		  if( dist < mMinKeyPointDist ) mMinKeyPointDist = dist;
@@ -79,12 +77,12 @@ bool Finder::CalculateKeyPointDist()
  * */
 bool Finder::CalculateGoodMatches()
 {
-	 if(mDescriptorMatches == nullptr)
+	 if(mDescriptorMatches.size() < 1)
 	 {
 		 return false;
 	 }
 
-	 for( int i = 0; i < mQuery.GetDescriptors().rows; i++ )
+	 for( int i = 0; i < (mQuery->GetDescriptors()).rows; i++ )
 	  {
 		 if( mDescriptorMatches[i].distance < 3*mMinKeyPointDist )
 		 {
@@ -102,9 +100,9 @@ bool Finder::CalculateGoodMatches()
  * */
 bool Finder::FindHomography()
 {
-	vector<KeyPoint> QueryKeyPoints = mQuery.GetKeyPoints();
-	vector<KeyPoint> SceneKeyPoints = mScene.GetKeyPoints();
-	if(mGoodMatches == nullptr || QueryKeyPoints.size() < 0 || SceneKeyPoints.size() < 0)
+	vector<KeyPoint> QueryKeyPoints = mQuery->GetKeyPoints();
+	vector<KeyPoint> SceneKeyPoints = mScene->GetKeyPoints();
+	if(mGoodMatches.size() < 1 || QueryKeyPoints.size() < 1 || SceneKeyPoints.size() < 1)
 	{
 		return false;
 	}
@@ -129,11 +127,7 @@ bool Finder::FindHomography()
  * */
 bool Finder::PerformPerspTransform()
 {
-	 Mat Query = mQuery.GetImg();
-	 if(Query == nullptr)
-	 {
-		 return false;
-	 }
+	 Mat Query = mQuery->GetImg();
 	 std::vector<Point2f> QueryCorners(4);
 	 QueryCorners[0] = cvPoint(0,0); QueryCorners[1] = cvPoint( Query.cols, 0 );
 	 QueryCorners[2] = cvPoint( Query.cols, Query.rows ); QueryCorners[3] = cvPoint( 0, Query.rows );
@@ -146,7 +140,7 @@ bool Finder::PerformPerspTransform()
  * */
 vector<DMatch> Finder::GetDescriptorMatches()
 {
-	if(mDescriptorMatches == nullptr)
+	if(mDescriptorMatches.size() < 1)
 	{
 		PerformDescriptorMatch();
 	}
@@ -159,7 +153,7 @@ bool Finder::DrawMatches()
 {
 	try
 	{
-		drawMatches(mQuery.GetImg(), mQuery.GetKeyPoints(), mScene.GetImg(), mScene.GetKeyPoints(),
+		drawMatches(mQuery->GetImg(), mQuery->GetKeyPoints(), mScene->GetImg(), mScene->GetKeyPoints(),
 			   mGoodMatches, mImageMatches, Scalar::all(255), Scalar::all(255),
 			   std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 		return true;
@@ -175,7 +169,7 @@ bool Finder::DrawMatches()
  * */
 Mat Finder::GetHomography()
 {
-	if(mHomography == nullptr)
+	if(mHomography.empty())
 	{
 		CalculateGoodMatches();
 		FindHomography();
@@ -187,8 +181,8 @@ Mat Finder::GetHomography()
  * */
 void Finder::RenderOutput()
 {
-	 Mat Query = mQuery.GetImg();
-	 if(Query == nullptr || mImageMatches == nullptr || mSceneCorners == nullptr)
+	 Mat Query = mQuery->GetImg();
+	 if(Query.empty() || mImageMatches.empty() || mSceneCorners.size() < 1)
 	 {
 		 cout << "Rendering is broken please check structures" << endl;
 		 return;

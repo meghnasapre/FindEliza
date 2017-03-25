@@ -34,13 +34,16 @@ using namespace cv;
 
 class ImageHandler
 {
+public:
+	/*! Default */
+	ImageHandler();
 	/*! Constructor for mImg
 	 *  @in filename          : Filepath and name to location
 	 *  @in(optional) resize  : cv resize to scale image, defaults to no resize
 	 *  @return               : None - Convert to Grayscale for processing
 	 *  						Initialize mQueryImg and mGrayScaleImg
 	 * */
-	ImageHandler(const string filename, const double resize=1.0);
+	ImageHandler(const string filename, double resize=1.0);
 
 public:
 	/*! GetImg()
@@ -58,7 +61,6 @@ public:
 	 * */
 	Mat GetDescriptors();
 
-protected:
 	/*! SetKeyPointsAndDescriptors()
 	 *	@in detector : Pass in pointer to detector (SURF/SIFT etc.)
 	 *	               to detect keypoints and extract descriptors

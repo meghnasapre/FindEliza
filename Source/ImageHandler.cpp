@@ -16,20 +16,25 @@ using namespace cv;
  *  @return               : Convert to Grayscale for processing.
  *  						Initialize mQueryImg and mGrayScaleImg.
  * */
-ImageHandler::ImageHandler(const string filename, const double resize)
+ImageHandler::ImageHandler(const string filename, double resizeVal)
 {
 	/*! Read the image in Color */
 	mImg = imread( filename, IMREAD_COLOR );
+	if(!mImg.data)
+	{
+		 cout << " --(!) Error reading images " << endl;
+		 return;
+	}
 	/*! Convert to Grayscale and store in mGrayScaleImg */
 	cvtColor(mImg, mGrayScaleImg, CV_RGB2GRAY );
 	/*! resize GrayScale image for processing */
-	resize(mGrayScaleImg, mGrayScaleImg, cv::Size(), resize, resize);
+	resize(mGrayScaleImg, mGrayScaleImg, cv::Size(), resizeVal, resizeVal);
 }
 
 /*! GetImg()
  *  @return : Accessor for mImg and mGrayScaleImg
  * */
-Mat ImageHandler::GetImg(bool GrayScale=false)
+Mat ImageHandler::GetImg(bool GrayScale)
 {
 	if(GrayScale)
 	{
@@ -67,7 +72,7 @@ bool ImageHandler::SetKeyPointsAndDescriptors(Ptr<Feature2D> detector)
 	}
 	try
 	{
-		detector->detectAndCompute( this->mGrayScaleImg, Mat(), mKeyPoints, mDescriptors );
+		detector->detectAndCompute( mGrayScaleImg, Mat(), mKeyPoints, mDescriptors );
 		return true;
 	}
 	catch(int e)

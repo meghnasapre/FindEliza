@@ -23,6 +23,7 @@ using namespace cv;
 
 class Finder
 {
+public:
 	/*! Constructor for Finder
 	 *  @return: None - Initialize  mQuery, mScene, mDetector
 	 * */
@@ -96,13 +97,13 @@ private:
 	FlannBasedMatcher mFMatcher;
 	vector<DMatch>    mDescriptorMatches;
 	vector<DMatch>    mGoodMatches;
-	ImageHandler      mQuery;
-	ImageHandler      mScene;
+	ImageHandler*     mQuery;
+	ImageHandler*     mScene;
 	vector<Point2f>   mSceneCorners;
 	Mat 			  mImageMatches;
 	Mat 			  mHomography;
-	double 			  mMaxKeyPointDist = 0;
-	double            mMinKeyPointDist = 70;
+	double 			  mMaxKeyPointDist;
+	double            mMinKeyPointDist;
 };
 
 
