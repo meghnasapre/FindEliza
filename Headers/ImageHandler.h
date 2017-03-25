@@ -43,6 +43,11 @@ class ImageHandler
 	ImageHandler(const string filename, const double resize=1.0);
 
 public:
+	/*! GetImg()
+	 *  @return : Accessor for mImg and mGrayScaleImg
+	 * */
+	Mat GetImg(bool GrayScale=false);
+
 	/*! GetKeyPoints()
 	 *  @return : Accessor for mKeyPoints
 	 * */
@@ -51,7 +56,7 @@ public:
 	/*! GetDescriptors()
 	 *  @return : Accessor for mDescriptors
 	 * */
-	vector<KeyPoint> GetDescriptors();
+	Mat GetDescriptors();
 
 protected:
 	/*! SetKeyPointsAndDescriptors()

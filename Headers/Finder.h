@@ -31,15 +31,16 @@ class Finder
 public:
 	/*! Accessor for mDescriptorMatches
 	 * */
-	bool GetDescriptorMatches();
+	vector<DMatch> GetDescriptorMatches();
 
 	/*! Accessor for mHomography
 	 * */
-	bool GetHomography();
+	Mat GetHomography();
 
 	/*! Render output
 	 * */
 	void RenderOutput();
+
 protected:
 	/*! PerformDescriptorMatch()
 	 *  @brief        : Retrieve Descriptors extracted from
@@ -78,8 +79,8 @@ protected:
 	bool FindHomography();
 
 	/*! PerformPerspTransform()
-	 *	@brief	 : Calculate corners from query.
-	 *	           Use CV to do perspective transform. Populate mHomography
+	 *	@brief	 : Calculate corners from query to find object to be detected
+	 *	           Use CV to do perspective transform. Populate mSceneCorners
 	 *  @return  : Return success or failure
 	 *
 	 * */

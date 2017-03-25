@@ -26,20 +26,32 @@ ImageHandler::ImageHandler(const string filename, const double resize)
 	resize(mGrayScaleImg, mGrayScaleImg, cv::Size(), resize, resize);
 }
 
+/*! GetImg()
+ *  @return : Accessor for mImg and mGrayScaleImg
+ * */
+Mat ImageHandler::GetImg(bool GrayScale=false)
+{
+	if(GrayScale)
+	{
+		return mGrayScaleImg;
+	}
+	return mImg;
+}
+
 /*! GetKeyPoints()
  *  @return : Accessor for mKeyPoints
  * */
 vector<KeyPoint> ImageHandler::GetKeyPoints()
 {
-	return this->mKeyPoints;
+	return mKeyPoints;
 }
 
 /*! GetDescriptors()
  *  @return : Accessor for mDescriptors
  * */
-vector<KeyPoint> ImageHandler::GetDescriptors()
+Mat ImageHandler::GetDescriptors()
 {
-	return this->mDescriptors;
+	return mDescriptors;
 }
 
 /*! SetKeyPointsAndDescriptors()
@@ -55,12 +67,13 @@ bool ImageHandler::SetKeyPointsAndDescriptors(Ptr<Feature2D> detector)
 	}
 	try
 	{
-		detector->detectAndCompute( this->mGrayScaleImg, Mat(), this->mKeyPoints, this->mDescriptors );
+		detector->detectAndCompute( this->mGrayScaleImg, Mat(), mKeyPoints, mDescriptors );
+		return true;
 	}
 	catch(int e)
 	{
 		cout << "An exception occurred. Exception: " << e << '\n';
 		return false;
 	}
-	return true;
+	return false;
 }
