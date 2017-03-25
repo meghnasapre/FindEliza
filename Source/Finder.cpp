@@ -16,10 +16,6 @@ using namespace cv::xfeatures2d;
 	 * */
 Finder::Finder(ImageHandler *query, ImageHandler *scene):mQuery(query),mScene(scene)
 {
-	//mQuery = &query;
-	//mScene = &scene;
-	cout << query->GetImg().rows << endl;
-	cout << mQuery->GetImg().rows << endl;
     mMaxKeyPointDist = 0;
     mMinKeyPointDist = 70;
 	mDetector = SIFT::create();
@@ -42,13 +38,10 @@ Ptr<Feature2D> Finder::GetDetector()
  * */
 bool Finder::PerformDescriptorMatch()
 {
-	cout << mQuery->GetImg().rows << endl;
 	vector<KeyPoint> kp =  mQuery->GetKeyPoints();
-	cout << "Query KeyPoints size: " << kp.size() << endl;
 	try
 	{
 		mFMatcher.match( mQuery->GetDescriptors(), mScene->GetDescriptors(), mDescriptorMatches);
-		cout << " mDescriptorMatches size: " << mDescriptorMatches.size() << endl;
 		return true;
 	}
 	catch(int e)
@@ -124,7 +117,6 @@ bool Finder::FindHomography()
 	 std::vector<Point2f> scene;
 	 for( size_t i = 0; i < mGoodMatches.size(); i++ )
 	 {
-		//-- Get the keypoints from the good matches
 		 obj.push_back(QueryKeyPoints[mGoodMatches[i].queryIdx ].pt );
 		 scene.push_back(SceneKeyPoints[mGoodMatches[i].trainIdx ].pt );
 	  }
@@ -154,7 +146,6 @@ bool Finder::PerformPerspTransform()
  * */
 vector<DMatch> Finder::GetDescriptorMatches()
 {
-	cout << "mDescriptorMatches size: " << mDescriptorMatches.size() << endl;
 	if(mDescriptorMatches.size() < 1)
 	{
 		PerformDescriptorMatch();
@@ -168,14 +159,14 @@ bool Finder::DrawMatches()
 {
 	try
 	{
-		cout << "mGoodMatches size: " << mGoodMatches.size() << endl;
-		cout << "mImageMatches empty: " << mImageMatches.empty() << endl;
-		Mat 			  ImageMatches;
+		Mat ImageMatches;
+
 		drawMatches(mQuery->GetImg(), mQuery->GetKeyPoints(), mScene->GetImg(), mScene->GetKeyPoints(),
 			   mGoodMatches, ImageMatches, Scalar::all(255), Scalar::all(255),
 			   std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+
 		ImageMatches.copyTo(mImageMatches);
-		cout << "mImageMatches empty: " << mImageMatches.empty() << endl;
+
 		return true;
 	}
 	catch(int e)
@@ -194,7 +185,6 @@ Mat Finder::GetHomography()
 		CalculateGoodMatches();
 		FindHomography();
 	}
-	cout << "mHomography empty: " << mHomography.empty() << endl;
 	return mHomography;
 }
 
@@ -202,17 +192,14 @@ Mat Finder::GetHomography()
  * */
 void Finder::RenderOutput()
 {
-	cout << "In Render" << endl;
 	 Mat Query = mQuery->GetImg();
 
 	 DrawMatches();
 	 PerformPerspTransform();
-	 cout << "Is query empty: " << Query.empty() << endl;
-	 cout << "Is mImageMatches empty: " << mImageMatches.empty() << endl;
-	 cout << "mSceneCorners size: " << mSceneCorners.size() << endl;
+
 	 if(Query.empty() || mImageMatches.empty() || mSceneCorners.size() < 1)
 	 {
-		 cout << "Rendering is broken please check structures" << endl;
+		 cout << "Rendering is broken: Please check structures" << endl;
 		 exit(0);
 	 }
 

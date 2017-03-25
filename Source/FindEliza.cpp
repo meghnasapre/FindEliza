@@ -23,21 +23,32 @@ int main( int argc, char** argv )
 		 return -1;
 	 }
 
-	ImageHandler query(argv[1], 0.75);
+	 /*! Input Query Image */
+	ImageHandler query(argv[1], 0.8);
+	/*! Input Scene */
 	ImageHandler scene(argv[2]);
 
+	/*! Initialize the finder */
 	Finder finder(&query, &scene);
+
+	/*! Use Feature Detector initialized by finder
+	 * to get KeyPoints and Descriptors
+	 */
 	query.SetKeyPointsAndDescriptors(finder.GetDetector());
-	vector<KeyPoint> kp = query.GetKeyPoints();
-	cout << "Query KeyPoints size: " << kp.size() << endl;
-
 	scene.SetKeyPointsAndDescriptors(finder.GetDetector());
-	vector<KeyPoint> sp = scene.GetKeyPoints();
-	cout << "Scene KeyPoints size: " << sp.size() << endl;
 
-	vector<DMatch> desc = finder.GetDescriptorMatches();
-	cout << "desc size: " << desc.size() << endl;
+	/*! Perform Description Matching
+	 * */
+	finder.GetDescriptorMatches();
+
+	/*! Calculate Good Matches
+	 *  and get Homography
+	 * */
 	finder.GetHomography();
+
+	/*! Apply Perspective Transform
+	 *  Draw and Render Matches
+	 * */
 	finder.RenderOutput();
 
     waitKey(0);
