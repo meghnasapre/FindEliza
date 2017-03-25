@@ -16,6 +16,7 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/calib3d.hpp"
 #include "include/opencv2/xfeatures2d/nonfree.hpp"
+#include "ImageHandler.h"
 
 using namespace std;
 using namespace cv;
@@ -23,40 +24,77 @@ using namespace cv;
 class Finder
 {
 	/*! Constructor for Finder
-	 *   @return: None - Initialize mDetector
+	 *  @return: None - Initialize  mQuery, mScene, mDetector
 	 * */
-	Finder();
+	Finder(ImageHandler query, ImageHandler scene);
 
 public:
 	/*! Accessor for mDescriptorMatches
 	 * */
 	bool GetDescriptorMatches();
 
+	/*! Accessor for mHomography
+	 * */
+	bool GetHomography();
+
+	/*! Render output
+	 * */
+	void RenderOutput();
 protected:
 	/*! PerformDescriptorMatch()
-	 *	@in QueryDesc : Descriptors extracted from Query
-	 *	@in SceneDesc : Descriptors extracted from Scene
-	 *  @brief        : Perform desc match and populate
-	 *                  mDescriptorMatches
+	 *  @brief        : Retrieve Descriptors extracted from
+	 *                  Query and scene. Perform desc match
+	 *                  and populate mDescriptorMatches
 	 *  @return       : Return success or failure
 	 *
 	 * */
-	bool PerformDescriptorMatch(Mat QueryDesc, Mat SceneDesc);
+	bool PerformDescriptorMatch();
 
 	/*! CalculateKeyPointDist()
 	 *	@in Desc : Descriptors extracted from Query
 	 *	@brief	 : Calculate of max and min distances between
-	 *	           keypoints. Populate mMaxKeyPointDist and
-	 *             mMinKeyPointDist
+	 *	           keypoints for Query Descr.
+	 *	           Populate mMaxKeyPointDist and mMinKeyPointDist
 	 *  @return  : Return success or failure
 	 *
 	 * */
-	bool CalculateKeyPointDist(Mat Desc);
+	bool CalculateKeyPointDist();
+
+	/*! CalculateGoodMatches()
+	 *	@brief	 : Narrow down interesting matches from Query Desc
+	 *	           Populate mGoodMatches
+	 *  @return  : Return success or failure
+	 *
+	 * */
+	bool CalculateGoodMatches();
+
+
+	/*! FindHomography()
+	 *	@brief	 : Get KeyPoints from the good matches
+	 *	           Use CV to find Homography. Populate mHomography
+	 *  @return  : Return success or failure
+	 *
+	 * */
+	bool FindHomography();
+
+	/*! PerformPerspTransform()
+	 *	@brief	 : Calculate corners from query.
+	 *	           Use CV to do perspective transform. Populate mHomography
+	 *  @return  : Return success or failure
+	 *
+	 * */
+	bool PerformPerspTransform();
 
 private:
 	Ptr<Feature2D>    mDetector;
 	FlannBasedMatcher mFMatcher;
 	vector<DMatch>    mDescriptorMatches;
+	vector<DMatch>    mGoodMatches;
+	ImageHandler      mQuery;
+	ImageHandler      mScene;
+	vector<Point2f>   mSceneCorners;
+	Mat 			  mImageMatches;
+	Mat 			  mHomography;
 	double 			  mMaxKeyPointDist = 0;
 	double            mMinKeyPointDist = 70;
 };
