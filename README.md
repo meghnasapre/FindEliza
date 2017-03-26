@@ -13,7 +13,7 @@ While researching OpenCV3 libs and what I can do as a simple first step, I thoug
 I decided to have some fun and revisit memories while building this.
 
 ## How to Run:
-./FindEliza <QueryImg> <SceneImg>
+./FindEliza QueryImg SceneImg.
 Some sample images are included with this project.
 Suggestion: ./FindEliza images/query/Eliza.png images/scene/TWTB2.jpg
 
