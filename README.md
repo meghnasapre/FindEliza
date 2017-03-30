@@ -13,9 +13,10 @@ While researching OpenCV3 libs and what I can do as a simple first step, I thoug
 I decided to have some fun and revisit memories while building this.
 
 ## How to Run:
-./FindEliza QueryImg SceneImg.
-Some sample images are included with this project.
-Suggestion: ./FindEliza images/query/Eliza.png images/scene/TWTB2.jpg
+1. **cd** to working directory, i.e. FindEliza.
+2. In a terminal run the **make** command. This should create a folder called exe,with the FindEliza executable in it.
+3. Invoke using **./exe/FindEliza images/query/Eliza.png images/scene/TWTB2.jpg** ( Format is ./FindEliza QueryImg SceneImg.)
+
 
 ## Next Steps:
 1. The project has very basic error handling and no logging. Including these would be necessary if the scope
