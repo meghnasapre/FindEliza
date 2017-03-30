@@ -15,7 +15,7 @@
 #include "opencv2/features2d.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/calib3d.hpp"
-#include "include/opencv2/xfeatures2d/nonfree.hpp"
+#include "opencv2/xfeatures2d/nonfree.hpp"
 #include "ImageHandler.h"
 
 using namespace std;
